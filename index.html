@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon vs Tiger Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .vs {
+            font-size: 3em;
+            margin: 20px 0;
+            text-shadow: 0 0 10px gold;
+        }
+
+        .characters {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .character {
+            font-size: 5em;
+            transition: transform 0.3s;
+        }
+
+        .dragon {
+            color: #ff5555;
+        }
+
+        .tiger {
+            color: #ffcc00;
+        }
+
+        .attack-btn {
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .attack-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6);
+        }
+
+        .attack-btn:active {
+            transform: scale(0.95);
+        }
+
+        .result {
+            font-size: 1.5em;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+
+        .score {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.8em;
+            margin: 20px 0;
+        }
+
+        .dragon-score, .tiger-score {
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .dragon-score {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+
+        .tiger-score {
+            background-color: rgba(255, 204, 0, 0.3);
+        }
+
+        .power {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .winner {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .history {
+            margin-top: 20px;
+            max-height: 100px;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Dragon 🐉 vs Tiger 🐅</h1>
+        
+        <div class="characters">
+            <div class="character dragon">🐉</div>
+            <div class="vs">VS</div>
+            <div class="character tiger">🐅</div>
+        </div>
+        
+        <div class="power">
+            <span id="dragon-power">?</span> - <span id="tiger-power">?</span>
+        </div>
+        
+        <div class="result" id="result">Press Attack to start!</div>
+        
+        <div class="score">
+            <div class="dragon-score">Dragon: <span id="dragon-score">0</span></div>
+            <div class="tiger-score">Tiger: <span id="tiger-score">0</span></div>
+        </div>
+        
+        <button class="attack-btn" id="attack-btn">ATTACK!</button>
+        <button class="reset-btn" id="reset-btn">Play Again</button>
+        
+        <div class="history" id="history">
+            <p>Battle Log:</p>
+        </div>
+    </div>
+
+    <script>
+        const dragonChar = document.querySelector('.dragon');
+        const tigerChar = document.querySelector('.tiger');
+        const dragonPowerEl = document.getElementById('dragon-power');
+        const tigerPowerEl = document.getElementById('tiger-power');
+        const resultEl = document.getElementById('result');
+        const dragonScoreEl = document.getElementById('dragon-score');
+        const tigerScoreEl = document.getElementById('tiger-score');
+        const attackBtn = document.getElementById('attack-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const historyEl = document.getElementById('history');
+        
+        let dragonScore = 0;
+        let tigerScore = 0;
+        let gameOver = false;
+        
+        attackBtn.addEventListener('click', battle);
+        resetBtn.addEventListener('click', resetGame);
+        
+        function battle() {
+            if (gameOver) return;
+            
+            // Generate random attack power (1-10)
+            const dragonPower = Math.floor(Math.random() * 10) + 1;
+            const tigerPower = Math.floor(Math.random() * 10) + 1;
+            
+            // Display powers
+            dragonPowerEl.textContent = dragonPower;
+            tigerPowerEl.textContent = tigerPower;
+            
+            // Animate characters
+            dragonChar.classList.add('winner');
+            tigerChar.classList.add('winner');
+            setTimeout(() => {
+                dragonChar.classList.remove('winner');
+                tigerChar.classList.remove('winner');
+            }, 300);
+            
+            // Determine winner
+            let roundResult;
+            if (dragonPower > tigerPower) {
+                dragonScore++;
+                roundResult = "Dragon wins this round!";
+                dragonChar.classList.add('winner');
+            } else if (tigerPower > dragonPower) {
+                tigerScore++;
+                roundResult = "Tiger wins this round!";
+                tigerChar.classList.add('winner');
+            } else {
+                roundResult = "It's a tie!";
+            }
+            
+            // Update UI
+            resultEl.textContent = roundResult;
+            dragonScoreEl.textContent = dragonScore;
+            tigerScoreEl.textContent = tigerScore;
+            
+            // Add to history
+            const historyItem = document.createElement('p');
+            historyItem.textContent = `Round ${dragonScore + tigerScore}: Dragon ${dragonPower} - Tiger ${tigerPower} (${roundResult})`;
+            historyEl.appendChild(historyItem);
+            historyEl.scrollTop = historyEl.scrollHeight;
+            
+            // Check for game winner
+            if (dragonScore >= 3 || tigerScore >= 3) {
+                gameOver = true;
+                let winner;
+                if (dragonScore >= 3) {
+                    winner = "Dragon 🐉 wins the game!";
+                    dragonChar.classList.add('winner');
+                } else {
+                    winner = "Tiger 🐅 wins the game!";
+                    tigerChar.classList.add('winner');
+                }
+                
+                setTimeout(() => {
+                    resultEl.innerHTML = `<strong>${winner}</strong>`;
+                    attackBtn.style.display = 'none';
+                    resetBtn.style.display = 'block';
+                }, 1000);
+            }
+        }
+        
+        function resetGame() {
+            dragonScore = 0;
+            tigerScore = 0;
+            gameOver = false;
+            
+            dragonScoreEl.textContent = '0';
+            tigerScoreEl.textContent = '0';
+            dragonPowerEl.textContent = '?';
+            tigerPowerEl.textContent = '?';
+            resultEl.textContent = 'Press Attack to start!';
+            
+            dragonChar.classList.remove('winner');
+            tigerChar.classList.remove('winner');
+            
+            attackBtn.style.display = 'block';
+            resetBtn.style.display = 'none';
+            
+            // Clear history
+            historyEl.innerHTML = '<p>Battle Log:</p>';
+        }
+    </script>
+</body>
+</html>
